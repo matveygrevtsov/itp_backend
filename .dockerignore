@@ -1,0 +1,32 @@
+# Docker ignore файл для Flask приложения
+
+# Игнорируем системные файлы
+.DS_Store
+.git/
+.gitignore
+
+# Игнорируем виртуальные окружения
+venv/
+env/
+.venv/
+*.pyc
+__pycache__/
+
+# Игнорируем логи и временные файлы
+*.log
+*.tmp
+*.pid
+
+# Игнорируем IDE файлы
+.vscode/
+.idea/
+*.swp
+
+# Игнорируем тестовые данные
+test/
+tests/
+
+# Игнорируем Docker файлы (они уже в контейнере)
+Dockerfile
+docker-compose.yml
+docker-manage.sh
