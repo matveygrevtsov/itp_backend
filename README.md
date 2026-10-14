@@ -132,6 +132,39 @@ python app.py
 }
 ```
 
+### POST /api/images-to-pdf
+Принимает несколько картинок (поле `files`, форматы PNG, JPG, JPEG) и возвращает
+один объединённый `.pdf`-файл (`application/pdf`).
+
+Перед сборкой PDF картинки сжимаются **без потери качества**:
+
+- **PNG** пересжимается lossless (`optimize=True` + максимальный уровень
+  DEFLATE-сжатия). Пиксели и альфа-канал остаются бит-в-бит неизменными, а
+  итоговый PDF становится меньше.
+- **JPEG** не перекодируется: `img2pdf` встраивает исходные байты в PDF без
+  пересжатия (фильтр `DCTDecode`), поэтому качество не меняется.
+- Прозрачность PNG сохраняется: она выносится в отдельный soft mask (`/SMask`).
+- Если сжатая версия PNG получилась не меньше исходной, используется исходный файл.
+
+Пример:
+```bash
+curl -X POST http://localhost:3000/api/images-to-pdf \
+  -F "files=@page1.png" -F "files=@photo.jpg" -o merged_images.pdf
+```
+
+### GET /api/pdf-info
+Информация о сервисе конвертации (поддерживаемые форматы, лимиты, режим сжатия).
+
+## Тестирование
+
+```bash
+# Тесты lossless-сжатия картинок и сборки PDF (сервер запускать не нужно)
+python3 test_lossless_compression.py
+
+# Тесты HTTP API (требуется запущенный сервер и библиотека requests)
+python3 test_pdf_api.py
+```
+
 ## Структура проекта
 
 ```
@@ -139,6 +172,8 @@ python app.py
 ├── app.py              # Основной файл Flask приложения
 ├── wsgi.py             # WSGI entry point для gunicorn
 ├── requirements.txt    # Зависимости Python
+├── test_lossless_compression.py  # Тесты lossless-сжатия картинок и сборки PDF
+├── test_pdf_api.py     # Тесты HTTP API
 ├── manage.sh           # Скрипт управления сервером
 ├── run.sh              # Простой скрипт запуска
 ├── Dockerfile          # Docker конфигурация
